@@ -5,19 +5,39 @@ from google.genai import types
 
 st.set_page_config(page_title="AI Startup Pitch Deck Critic", page_icon="💸", layout="wide")
 
-# User Authentication
-if not st.experimental_user.is_logged_in:
+# User Authentication Safe Helper
+def check_is_logged_in():
+    user_obj = getattr(st, "user", getattr(st, "experimental_user", None))
+    if user_obj is not None:
+        if isinstance(user_obj, dict):
+            return user_obj.get("is_logged_in", False)
+        return getattr(user_obj, "is_logged_in", False)
+    return False
+
+def get_user_info(key, default):
+    user_obj = getattr(st, "user", getattr(st, "experimental_user", None))
+    if user_obj is not None:
+        if isinstance(user_obj, dict):
+            return user_obj.get(key, default)
+        return getattr(user_obj, key, default)
+    return default
+
+if not check_is_logged_in():
     st.title("💸 Welcome to AI Startup Pitch Deck Critic")
     st.markdown("Please log in to get your startup pitch deck brutally roasted.")
-    st.login()
+    if hasattr(st, "login"):
+        st.login()
+    else:
+        st.warning("Authentication is not supported in this environment.")
     st.stop()
 
 # Sidebar User Profile
 with st.sidebar:
     st.header("👤 Profile")
-    st.write(f"**Name:** {st.experimental_user.name}")
-    st.write(f"**Email:** {st.experimental_user.email}")
-    st.logout()
+    st.write(f"**Name:** {get_user_info('name', 'Guest')}")
+    st.write(f"**Email:** {get_user_info('email', 'guest@example.com')}")
+    if hasattr(st, "logout"):
+        st.logout()
 
 st.title("💸 AI Startup Pitch Deck Critic")
 st.markdown("**Upload your startup pitch deck (PDF) and get brutally roasted by an AI Silicon Valley VC.**")
