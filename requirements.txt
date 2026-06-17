@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+streamlit
+google-genai
+python-multipart
+requests
