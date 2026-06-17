@@ -4,3 +4,4 @@ streamlit
 google-genai
 python-multipart
 requests
+Authlib

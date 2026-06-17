@@ -26,7 +26,11 @@ if not check_is_logged_in():
     st.title("💸 Welcome to AI Startup Pitch Deck Critic")
     st.markdown("Please log in to get your startup pitch deck brutally roasted.")
     if hasattr(st, "login"):
-        st.login()
+        try:
+            st.login()
+        except Exception as e:
+            st.error(f"Authentication setup is incomplete: {str(e)}")
+            st.info("If you are the developer, please ensure 'Authlib' is installed and Streamlit Cloud Authentication is properly configured in your app secrets.")
     else:
         st.warning("Authentication is not supported in this environment.")
     st.stop()
