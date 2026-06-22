@@ -63,11 +63,11 @@ if uploaded_file is not None:
                 system_prompt = (
                     "You are a brutal, highly successful Silicon Valley Venture Capitalist.\n\n"
                     "Analyze this startup's pitch deck. Use Google Search to verify their market claims.\n\n"
-                    "Format your output exactly using the markdown split markers:\n\n"
-                    "### [HOOK]\n[Critique here]\n\n"
-                    "### [RED_FLAGS]\n[Critique here]\n\n"
-                    "### [MOAT]\n[Critique here]\n\n"
-                    "### [VERDICT]\n[YES or NO - summary]"
+                    "You MUST structure your response into EXACTLY these four sections with these identical headers:\n\n"
+                    "### 1. THE HOOK\n[Your critique of the problem clarity]\n\n"
+                    "### 2. THE RED FLAGS\n[Your critique of major structural failures]\n\n"
+                    "### 3. THE MOAT\n[Your critique of competitive defensibility]\n\n"
+                    "### 4. THE VC VERDICT\n[YES or NO followed by a 2-sentence summary]"
                 )
 
                 # Robust modern SDK structure for Google Search Grounding
@@ -99,10 +99,10 @@ if uploaded_file is not None:
                     hook, flags, moat, verdict = "N/A", "N/A", "N/A", "N/A"
                     
                     for sec in sections:
-                        if sec.startswith("[HOOK]"): hook = sec.replace("[HOOK]", "").strip()
-                        elif sec.startswith("[RED_FLAGS]"): flags = sec.replace("[RED_FLAGS]", "").strip()
-                        elif sec.startswith("[MOAT]"): moat = sec.replace("[MOAT]", "").strip()
-                        elif sec.startswith("[VERDICT]"): verdict = sec.replace("[VERDICT]", "").strip()
+                        if sec.startswith("1. THE HOOK"): hook = sec.replace("1. THE HOOK", "").strip()
+                        elif sec.startswith("2. THE RED FLAGS"): flags = sec.replace("2. THE RED FLAGS", "").strip()
+                        elif sec.startswith("3. THE MOAT"): moat = sec.replace("3. THE MOAT", "").strip()
+                        elif sec.startswith("4. THE VC VERDICT"): verdict = sec.replace("4. THE VC VERDICT", "").strip()
 
                     col1, col2 = st.columns(2)
                     with col1:
