@@ -5,24 +5,20 @@ from google.genai import types
 
 st.set_page_config(page_title="AI Startup Pitch Deck Critic", page_icon="💸", layout="wide")
 
-# User Authentication Safe Helper
-def check_is_logged_in():
-    user_obj = getattr(st, "user", getattr(st, "experimental_user", None))
-    if user_obj is not None:
-        if isinstance(user_obj, dict):
-            return user_obj.get("is_logged_in", False)
-        return getattr(user_obj, "is_logged_in", False)
-    return False
+# User Authentication State Management
+if "authenticated" not in st.session_state:
+    st.session_state.authenticated = False
 
-def get_user_info(key, default):
-    user_obj = getattr(st, "user", getattr(st, "experimental_user", None))
-    if user_obj is not None:
-        if isinstance(user_obj, dict):
-            return user_obj.get(key, default)
-        return getattr(user_obj, key, default)
-    return default
+user_obj = getattr(st, "user", getattr(st, "experimental_user", None))
+if user_obj is not None:
+    if isinstance(user_obj, dict):
+        if user_obj.get("is_logged_in", False):
+            st.session_state.authenticated = True
+    else:
+        if getattr(user_obj, "is_logged_in", False):
+            st.session_state.authenticated = True
 
-if not check_is_logged_in():
+if not st.session_state.authenticated:
     st.title("💸 Welcome to AI Startup Pitch Deck Critic")
     st.markdown("Please log in to get your startup pitch deck brutally roasted.")
     if hasattr(st, "login"):
@@ -38,8 +34,17 @@ if not check_is_logged_in():
 # Sidebar User Profile
 with st.sidebar:
     st.header("👤 Profile")
-    st.write(f"**Name:** {get_user_info('name', 'Guest')}")
-    st.write(f"**Email:** {get_user_info('email', 'guest@example.com')}")
+    name = "Guest"
+    email = "guest@example.com"
+    if user_obj is not None:
+        if isinstance(user_obj, dict):
+            name = user_obj.get("name", "Guest")
+            email = user_obj.get("email", "guest@example.com")
+        else:
+            name = getattr(user_obj, "name", "Guest")
+            email = getattr(user_obj, "email", "guest@example.com")
+    st.write(f"**Name:** {name}")
+    st.write(f"**Email:** {email}")
     if hasattr(st, "logout"):
         st.logout()
 
