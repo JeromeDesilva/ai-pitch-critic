@@ -6,28 +6,27 @@ from google.genai import types
 st.set_page_config(page_title="VC Pitch Critic", page_icon="📈", layout="wide")
 
 # ====================================================================
-# 1. SIMPLE SECURE ACCES GATEWAY
+# 1. FAIL-SAFE ACCES GATEWAY
 # ====================================================================
-# This replaces complex Google Auth with a simple, secure password gate
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 
 if not st.session_state.authenticated:
-    st.markdown("<h1 style='text-align: center;'>💼 Silicon Valley AI Pitch Critic</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center; color: gray;'>Enter your premium startup access key to run pitch evaluations.</p>", unsafe_allow_html=True)
+    # Swapped HTML strings for official native headers to guarantee no parameter typos
+    st.title("💼 Silicon Valley AI Pitch Critic")
+    st.caption("Enter your premium startup access key to run pitch evaluations.")
     
     # Secure Password Input Box
     access_key = st.text_input("Enter Startup Access Key:", type="password")
     
     if st.button("Unlock Dashboard", type="primary", use_container_width=True):
-        # Checks if the user typed the exact secret key stored in your cloud secrets
-        if access_key == os.getenv("STARTUP_ACCESS_KEY", "admin123"):
+        if access_key == os.getenv("STARTUP_ACCESS_KEY", "PitchCritic2026"):
             st.session_state.authenticated = True
             st.success("Access Granted! Loading Workspace...")
             st.rerun()
         else:
-            st.error("Invalid Access Key. Please contact the administrator.")
-    st.stop() # Stops the page right here if they aren't authenticated
+            st.error("Invalid Access Key. Please check your cloud secrets configuration.")
+    st.stop() 
 
 # ====================================================================
 # 2. MAIN WORKSPACE DASHBOARD (Only runs if authenticated is True)
