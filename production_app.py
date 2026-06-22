@@ -88,21 +88,18 @@ if uploaded_file is not None:
                     st.error("The AI engine returned an empty response. Please try submitting the file again.")
                     st.stop()
                 
+                # Clean UI Parsing from modern headers
                 raw_text = response.text
                 
-                # Fallback handler if the model fails to use exact header formatting markers
-                if "### " not in raw_text:
+                if "### 1. THE HOOK" not in raw_text:
                     st.subheader("📊 Venture Capitalist Evaluation Report")
                     st.markdown(raw_text)
                 else:
-                    sections = raw_text.split("### ")
-                    hook, flags, moat, verdict = "N/A", "N/A", "N/A", "N/A"
-                    
-                    for sec in sections:
-                        if sec.startswith("1. THE HOOK"): hook = sec.replace("1. THE HOOK", "").strip()
-                        elif sec.startswith("2. THE RED FLAGS"): flags = sec.replace("2. THE RED FLAGS", "").strip()
-                        elif sec.startswith("3. THE MOAT"): moat = sec.replace("3. THE MOAT", "").strip()
-                        elif sec.startswith("4. THE VC VERDICT"): verdict = sec.replace("4. THE VC VERDICT", "").strip()
+                    # Clear separation based on numbered titles
+                    hook = raw_text.split("### 1. THE HOOK")[1].split("### 2. THE RED FLAGS")[0].strip()
+                    flags = raw_text.split("### 2. THE RED FLAGS")[1].split("### 3. THE MOAT")[0].strip()
+                    moat = raw_text.split("### 3. THE MOAT")[1].split("### 4. THE VC VERDICT")[0].strip()
+                    verdict = raw_text.split("### 4. THE VC VERDICT")[1].strip()
 
                     col1, col2 = st.columns(2)
                     with col1:
