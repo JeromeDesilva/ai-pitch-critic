@@ -7,7 +7,12 @@ st.set_page_config(page_title="AI Startup Pitch Deck Critic", page_icon="💸", 
 
 # 1. HARD SECURITY GATE: Read the native OIDC cookie state directly
 # Streamlit populates st.user automatically from the secure browser token
-if not st.user.is_logged_in:
+if st.user.is_logged_in:
+    pass # Proceed to the main application dashboard
+elif 'code' in st.query_params:
+    with st.spinner('Securing handshake...'):
+        st.rerun()
+else:
     st.markdown('# 💸 Welcome to AI Startup Pitch Deck Critic')
     st.markdown('Please log in to get your startup pitch deck brutally roasted.')
     
