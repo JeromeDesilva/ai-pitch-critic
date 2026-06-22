@@ -13,8 +13,8 @@ if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 
 if not st.session_state.authenticated:
-    st.markdown("<h1 style='text-align: center;'>💼 Silicon Valley AI Pitch Critic</h1>", unsafe_style=True)
-    st.markdown("<p style='text-align: center; color: gray;'>Enter your premium startup access key to run pitch evaluations.</p>", unsafe_style=True)
+    st.markdown("<h1 style='text-align: center;'>💼 Silicon Valley AI Pitch Critic</h1>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; color: gray;'>Enter your premium startup access key to run pitch evaluations.</p>", unsafe_allow_html=True)
     
     # Secure Password Input Box
     access_key = st.text_input("Enter Startup Access Key:", type="password")
