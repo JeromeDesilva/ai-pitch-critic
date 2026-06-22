@@ -5,46 +5,20 @@ from google.genai import types
 
 st.set_page_config(page_title="AI Startup Pitch Deck Critic", page_icon="💸", layout="wide")
 
-# User Authentication State Management
-if "authenticated" not in st.session_state:
-    st.session_state.authenticated = False
-
-user_obj = getattr(st, "user", getattr(st, "experimental_user", None))
-if user_obj is not None:
-    if isinstance(user_obj, dict):
-        if user_obj.get("is_logged_in", False):
-            st.session_state.authenticated = True
-    else:
-        if getattr(user_obj, "is_logged_in", False):
-            st.session_state.authenticated = True
-
-if not st.session_state.authenticated:
-    st.title("💸 Welcome to AI Startup Pitch Deck Critic")
-    st.markdown("Please log in to get your startup pitch deck brutally roasted.")
-    if hasattr(st, "login"):
-        try:
-            st.login(provider="google")
-        except Exception as e:
-            st.error(f"Authentication setup is incomplete: {str(e)}")
-            st.info("If you are the developer, please ensure 'Authlib' is installed and Streamlit Cloud Authentication is properly configured in your app secrets.")
-    else:
-        st.warning("Authentication is not supported in this environment.")
+if not st.experimental_user.is_logged_in:
+    st.markdown('# 💸 Welcome to AI Startup Pitch Deck Critic')
+    st.markdown('Please log in to get your startup pitch deck brutally roasted.')
+    
+    # Explicitly render the login button trigger
+    if st.button('🔒 Sign in with Google', type='primary', use_container_width=True):
+        st.login(provider='google')
     st.stop()
 
 # Sidebar User Profile
 with st.sidebar:
     st.header("👤 Profile")
-    name = "Guest"
-    email = "guest@example.com"
-    if user_obj is not None:
-        if isinstance(user_obj, dict):
-            name = user_obj.get("name", "Guest")
-            email = user_obj.get("email", "guest@example.com")
-        else:
-            name = getattr(user_obj, "name", "Guest")
-            email = getattr(user_obj, "email", "guest@example.com")
-    st.write(f"**Name:** {name}")
-    st.write(f"**Email:** {email}")
+    st.write(f"**Name:** {getattr(st.experimental_user, 'name', 'Guest')}")
+    st.write(f"**Email:** {getattr(st.experimental_user, 'email', 'guest@example.com')}")
     if hasattr(st, "logout"):
         st.logout()
 
