@@ -27,7 +27,7 @@ if not check_is_logged_in():
     st.markdown("Please log in to get your startup pitch deck brutally roasted.")
     if hasattr(st, "login"):
         try:
-            st.login()
+            st.login(provider="google")
         except Exception as e:
             st.error(f"Authentication setup is incomplete: {str(e)}")
             st.info("If you are the developer, please ensure 'Authlib' is installed and Streamlit Cloud Authentication is properly configured in your app secrets.")
