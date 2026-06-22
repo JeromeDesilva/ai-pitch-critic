@@ -5,6 +5,8 @@ from google.genai import types
 
 st.set_page_config(page_title="AI Startup Pitch Deck Critic", page_icon="💸", layout="wide")
 
+# 1. HARD SECURITY GATE: Read the native OIDC cookie state directly
+# Streamlit populates st.user automatically from the secure browser token
 if not st.user.is_logged_in:
     st.markdown('# 💸 Welcome to AI Startup Pitch Deck Critic')
     st.markdown('Please log in to get your startup pitch deck brutally roasted.')
@@ -12,18 +14,24 @@ if not st.user.is_logged_in:
     # Render the login button trigger
     if st.button('🔒 Sign in with Google', type='primary', use_container_width=True):
         st.login(provider='google')
-    st.stop()
+    st.stop()  # Strictly halt script processing right here for unauthenticated sessions
 
-# Sidebar User Profile
+# ====================================================================
+# 2. MAIN APPLICATION CONTENT (Only executes if user passes the gate above)
+# ====================================================================
+
+# Initialize Chat Memory safely without resetting on script reruns
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = []
+
+# Sidebar User Information & Logout
 with st.sidebar:
-    st.header("👤 Profile")
-    st.write(f"**Name:** {getattr(st.user, 'name', 'Guest')}")
-    st.write(f"**Email:** {getattr(st.user, 'email', 'guest@example.com')}")
-    if hasattr(st, "logout"):
+    st.sidebar.success(f"Authenticated as: {st.user.email}")
+    if st.sidebar.button("🚪 Log Out"):
         st.logout()
 
-st.title("💸 AI Startup Pitch Deck Critic")
-st.markdown("**Upload your startup pitch deck (PDF) and get brutally roasted by an AI Silicon Valley VC.**")
+# Main Application Dashboard
+st.markdown(f"## 📈 Pitch Analysis Workspace for {st.user.name if st.user.name else 'Founder'}")
 
 SYSTEM_PROMPT = """You are a brutal, hyper-critical Silicon Valley Venture Capitalist. 
 You review pitch decks and tear them apart if they aren't flawless. 
@@ -58,12 +66,10 @@ if "GEMINI_API_KEY" not in os.environ and "GEMINI_API_KEY" not in st.secrets:
 api_key = os.environ.get("GEMINI_API_KEY") or st.secrets.get("GEMINI_API_KEY")
 client = genai.Client(api_key=api_key)
 
-if "chat_history" not in st.session_state:
-    st.session_state.chat_history = []
 if "critique_done" not in st.session_state:
     st.session_state.critique_done = False
 
-uploaded_file = st.file_uploader("Upload Pitch Deck (PDF only)", type=["pdf"])
+uploaded_file = st.file_uploader("Upload Pitch Deck PDF", type=["pdf"])
 
 if uploaded_file is not None and not st.session_state.critique_done:
     st.info("File uploaded successfully. Click the button below to get your critique.")
