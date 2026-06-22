@@ -61,8 +61,8 @@ if uploaded_file is not None:
                 file_bytes = uploaded_file.getvalue()
                 
                 system_prompt = (
-                    "You are a brutal, highly successful Silicon Valley Venture Capitalist. "
-                    "Analyze this startup's pitch deck. Use Google Search to verify their market claims. "
+                    "You are a brutal, highly successful Silicon Valley Venture Capitalist.\n\n"
+                    "Analyze this startup's pitch deck. Use Google Search to verify their market claims.\n\n"
                     "Format your output exactly using the markdown split markers:\n\n"
                     "### [HOOK]\n[Critique here]\n\n"
                     "### [RED_FLAGS]\n[Critique here]\n\n"
@@ -70,6 +70,7 @@ if uploaded_file is not None:
                     "### [VERDICT]\n[YES or NO - summary]"
                 )
 
+                # Robust modern SDK structure for Google Search Grounding
                 response = client.models.generate_content(
                     model="gemini-2.5-flash",
                     contents=[
@@ -77,32 +78,44 @@ if uploaded_file is not None:
                         system_prompt
                     ],
                     config=types.GenerateContentConfig(
-                        tools=[types.Tool(google_search=types.GoogleSearch())]
+                        tools=[{"google_search": {}}],  # Clean, direct dict notation
+                        temperature=0.4
                     )
                 )
                 
-                raw_text = response.text
-                sections = raw_text.split("### ")
-                hook, flags, moat, verdict = "N/A", "N/A", "N/A", "N/A"
+                # Check for a clean API response before parsing string values
+                if not response or not response.text:
+                    st.error("The AI engine returned an empty response. Please try submitting the file again.")
+                    st.stop()
                 
-                for sec in sections:
-                    if sec.startswith("[HOOK]"): hook = sec.replace("[HOOK]", "").strip()
-                    elif sec.startswith("[RED_FLAGS]"): flags = sec.replace("[RED_FLAGS]", "").strip()
-                    elif sec.startswith("[MOAT]"): moat = sec.replace("[MOAT]", "").strip()
-                    elif sec.startswith("[VERDICT]"): verdict = sec.replace("[VERDICT]", "").strip()
+                raw_text = response.text
+                
+                # Fallback handler if the model fails to use exact header formatting markers
+                if "### " not in raw_text:
+                    st.subheader("📊 Venture Capitalist Evaluation Report")
+                    st.markdown(raw_text)
+                else:
+                    sections = raw_text.split("### ")
+                    hook, flags, moat, verdict = "N/A", "N/A", "N/A", "N/A"
+                    
+                    for sec in sections:
+                        if sec.startswith("[HOOK]"): hook = sec.replace("[HOOK]", "").strip()
+                        elif sec.startswith("[RED_FLAGS]"): flags = sec.replace("[RED_FLAGS]", "").strip()
+                        elif sec.startswith("[MOAT]"): moat = sec.replace("[MOAT]", "").strip()
+                        elif sec.startswith("[VERDICT]"): verdict = sec.replace("[VERDICT]", "").strip()
 
-                col1, col2 = st.columns(2)
-                with col1:
-                    st.subheader("📊 Evaluation")
-                    st.info(f"**🪝 The Hook:**\n\n{hook}")
-                    st.info(f"**🛡️ The Moat:**\n\n{moat}")
-                with col2:
-                    st.subheader("🚨 Risks & Verdict")
-                    st.error(f"**Red Flags:**\n\n{flags}")
-                    if "YES" in verdict.upper():
-                        st.success(f"### 💰 Decision:\n{verdict}")
-                    else:
-                        st.warning(f"### ❌ Decision:\n{verdict}")
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        st.subheader("📊 Evaluation")
+                        st.info(f"**🪝 The Hook:**\n\n{hook}")
+                        st.info(f"**🛡️ The Moat:**\n\n{moat}")
+                    with col2:
+                        st.subheader("🚨 Risks & Verdict")
+                        st.error(f"**Red Flags:**\n\n{flags}")
+                        if "YES" in verdict.upper():
+                            st.success(f"### 💰 Decision:\n{verdict}")
+                        else:
+                            st.warning(f"### ❌ Decision:\n{verdict}")
                         
             except Exception as e:
                 st.error(f"Production Pipeline Error: {e}")
