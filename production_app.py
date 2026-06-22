@@ -5,11 +5,11 @@ from google.genai import types
 
 st.set_page_config(page_title="AI Startup Pitch Deck Critic", page_icon="💸", layout="wide")
 
-if not st.experimental_user.is_logged_in:
+if not st.user.is_logged_in:
     st.markdown('# 💸 Welcome to AI Startup Pitch Deck Critic')
     st.markdown('Please log in to get your startup pitch deck brutally roasted.')
     
-    # Explicitly render the login button trigger
+    # Render the login button trigger
     if st.button('🔒 Sign in with Google', type='primary', use_container_width=True):
         st.login(provider='google')
     st.stop()
@@ -17,8 +17,8 @@ if not st.experimental_user.is_logged_in:
 # Sidebar User Profile
 with st.sidebar:
     st.header("👤 Profile")
-    st.write(f"**Name:** {getattr(st.experimental_user, 'name', 'Guest')}")
-    st.write(f"**Email:** {getattr(st.experimental_user, 'email', 'guest@example.com')}")
+    st.write(f"**Name:** {getattr(st.user, 'name', 'Guest')}")
+    st.write(f"**Email:** {getattr(st.user, 'email', 'guest@example.com')}")
     if hasattr(st, "logout"):
         st.logout()
 
